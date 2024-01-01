@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Conceptive_Adminhtml::admin" title="AdminData">
+                <resource id="Conceptive_Requestquote::requestquote" title="Requestquote" sortOrder="40">
+                    <resource id="Conceptive_Requestquote::manage" title="Requestquote Module" sortOrder="10">
+						<resource id="Conceptive_Requestquote::save" title="Save Requestquote" sortOrder="10" />
+                        <resource id="Conceptive_Requestquote::news_delete" title="Delete Requestquote" sortOrder="20" />
+					</resource>
+                </resource>
+                <resource id="Conceptive_Adminhtml::stores" title="Storedata">
+                    <resource id="Conceptive_Adminhtml::stores_settings" title="Settingdata">
+                        <resource id="Conceptive_Adminhtml::config" title="configdata">
+                            <resource id="Conceptive_Requestquote::config_requestquote" title="Requestquote Section" sortOrder="50" />
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

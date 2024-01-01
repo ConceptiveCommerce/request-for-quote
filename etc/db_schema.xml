@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+   <table name="conceptive_requestquote" resource="default" engine="innodb" comment="Conceptive Request Quote">
+      <column xsi:type="int" name="requestquote_id" padding="20" unsigned="false" nullable="false" identity="true" comment="Requestquote ID" />
+      <column xsi:type="varchar" name="name" nullable="true" length="200" comment="Name" />
+      <column xsi:type="varchar" name="email" nullable="true" length="255" comment="Email" />
+      <column xsi:type="varchar" name="phoneno" nullable="true" length="255" comment="Phone No" />
+      <column xsi:type="varchar" name="comments" nullable="true" length="255" comment="Comments" />
+      <column xsi:type="date" name="date" nullable="false" comment="Date" />
+      <column xsi:type="date" name="published_at" nullable="true" comment="World publish date" />
+      <column xsi:type="varchar" name="product_id" nullable="false" length="255" comment="Product Id" />
+      <column xsi:type="varchar" name="product_name" nullable="true" length="255" comment="Product Name" />
+      <constraint xsi:type="primary" referenceId="PRIMARY">
+         <column name="requestquote_id" />
+      </constraint>
+   </table>
+</schema>

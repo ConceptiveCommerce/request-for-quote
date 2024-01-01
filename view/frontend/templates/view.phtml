@@ -1,0 +1,30 @@
+<?php
+/**
+ * Requestquote template for separate item
+ *
+ */
+
+/**
+ * @var $this Conceptive\Requestquote\Block\View
+ * @see Conceptive\Requestquote\Block\View
+ */
+?>
+<?php $_requestquoteItem = $this->getRequestquote(); ?>
+    <div class="requestquote_item_subtitle">
+        <?php echo $this->formatDate($_requestquoteItem->getPublishedAt()) ?> |
+        <?php echo $this->escapeHtml($_requestquoteItem->getAuthor()) ?>
+    </div>
+
+<div class="requestquote_item_view">
+    <?php if ($imageUrl = $this->getImageUrl($_requestquoteItem, 400)): ?>
+       <p><img src="<?php echo $imageUrl ?>" alt="<?php echo $this->escapeHtml($_requestquoteItem->getTitle()) ?>" /></p>
+    <?php endif; ?>
+
+    <div class="requestquote_item_content"><?php echo $_requestquoteItem->getContent() ?></div>
+
+    <div class="pager">
+        <a href="<?php echo $this->getBackUrl() ?>">
+            <?php echo __('Return to list') ?>
+        </a>
+    </div>
+</div>

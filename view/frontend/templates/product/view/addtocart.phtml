@@ -1,0 +1,156 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+    
+/** @var $block \Magento\Catalog\Block\Product\View */
+?>
+<?php 
+$blockObj= $block->getLayout()->createBlock('Conceptive\Requestquote\Block\Requestquote');
+?>
+<?php $_product = $block->getProduct(); ?>
+<?php $buttonTitle = __('Add to Cart'); ?>
+<?php if ($_product->isSaleable()) :?>
+<div class="box-tocart">
+    <div class="fieldset">
+        <?php if ($block->shouldRenderQuantity()) :?>
+        <div class="field qty">
+            <label class="label" for="qty"><span><?= $block->escapeHtml(__('Qty')) ?></span></label>
+            <div class="control">
+                <input type="number"
+                       name="qty"
+                       id="qty"
+                       min="0"
+                       value="<?= $block->getProductDefaultQty() * 1 ?>"
+                       title="<?= $block->escapeHtmlAttr(__('Qty12333')) ?>"
+                       class="input-text qty"
+                       data-validate="<?= $block->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
+                       />
+            </div>
+        </div>
+        <?php endif; ?>
+        <div class="actions">
+            <button type="submit"
+                    title="<?= $block->escapeHtmlAttr($buttonTitle) ?>"
+                    class="action primary tocart"
+                    id="product-addtocart-button" disabled>
+                <span><?= $block->escapeHtml($buttonTitle) ?></span>
+            </button>
+            <?= $block->getChildHtml('', true) ?>
+        </div>
+
+        <div class="quote-form">
+            <input type="button" name="Get Quote" id="mbtn" value="Get Quote">
+                <h1>Get Quote</h1>
+<form method="post" name="quoteform" id="quoteform">
+    <span>Name: </span><input name="name" type="text" id="name">
+    <span>Email: </span><input name="email" type="text" id="email">
+   <span>Phone NO: </span> <input name="phoneno" type="text" id="phoneno">
+    <span>Comments: </span><input name="comments" type="text" id="comments">
+    <input type="submit" id="btnsubmit" value="Send booking informations">
+</form>
+<div id="popup-modal">
+             <h1>Get Quote</h1>
+<form method="post" name="quoteform" id="quoteform">
+    <span>Name: </span><input name="name" type="text" id="name">
+    <span>Email: </span><input name="email" type="text" id="email">
+   <span>Phone NO: </span> <input name="phoneno" type="text" id="phoneno">
+    <span>Comments: </span><input name="comments" type="text" id="comments">
+    <input type="submit" id="btnsubmit" value="Send booking informations">
+</form>
+</div>
+<script>
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal'
+        ],
+        function(
+            $,
+            modal
+        ) {
+            var options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                title: 'Custom Form Popup',
+                buttons: [{
+                    text: $.mage.__('Close'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    }
+                }]
+            };
+
+            var popup = modal(options, $('#popup-modal'));
+
+           // $('#popup-modal').modal('openModal');
+            $('#mbtn').click(function() {
+                alert("sdsd");
+                  $('#popup-modal').modal('openModal');
+            });
+
+                $(document).ready(function() {
+       // jQuery(".result").hide();
+       /* $("#btnsubmit").submit(function(){
+          // alert("sdsadashvfjah"); 
+            var name = $("#name").val();
+            var email = $("#email").val();
+            var phoneno = $("#phoneno").val();
+            var comments = $("#comments").val();
+
+            var url = "<!--<?php //echo $blockObj->getFormAction() ?>";
+            $.ajax({
+            url: url,
+            type: "POST",
+            data: {name:name,email:email},
+            showLoader: true,
+            cache: false,
+            success: function(response){
+                console.log(response.output);
+                alert("submitted");
+            }
+        });
+        return false;
+        });*/
+                $("#btnsubmit").submit(function(){
+          // alert("sdsadashvfjah"); 
+            var name = $("#name").val();
+         //   var email = jQuery("#email").val();
+         //   var phoneno = jQuery("#phoneno").val();
+            //var comments = jQuery("comments").val();
+
+            var url = "<?php echo $blockObj->getFormAction() ?>";
+            $.ajax({
+            url: url,
+            type: "POST",
+            data: {name:name},
+            showLoader: false,
+            cache: false,
+            success: function(response){
+                console.log(response.output);
+                //alert("submitted");
+            }
+        });
+        return false;
+        });
+    });
+        }
+    );
+</script>
+
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+<script type="text/x-magento-init">
+    {
+        "#product_addtocart_form": {
+            "Magento_Catalog/js/validate-product": {}
+        }
+    }
+</script>
+
+

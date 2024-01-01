@@ -1,0 +1,274 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+use Magento\Framework\App\Action\Action;
+
+/** @var \Magento\CatalogWidget\Block\Product\ProductsList $block */
+?>
+<?php 
+
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+//$product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');//get current product
+$blockObj= $block->getLayout()->createBlock('Conceptive\Requestquote\Block\Requestquote');
+$isEnable = $blockObj->getConfigValue('requestquote/view/enabled');
+$buttonText = $blockObj->getConfigValue('requestquote/view/button_text');
+//echo $blockObj->getConfigValue('requestquote/view/template');
+?>
+<?php if ($exist = ($block->getProductCollection() && $block->getProductCollection()->getSize())) : ?>
+    <?php
+    $type = 'widget-product-grid';
+
+    $mode = 'grid';
+
+    $image = 'new_products_content_widget_grid';
+    $items = $block->getProductCollection()->getItems();
+
+    $showWishlist = true;
+    $showCompare = true;
+    $showCart = true;
+    $templateType = \Magento\Catalog\Block\Product\ReviewRendererInterface::SHORT_VIEW;
+    $description = false;
+    ?>
+    <div class="block widget block-products-list <?= /* @noEscape */ $mode ?>">
+        <?php if ($block->getTitle()) : ?>
+            <div class="block-title">
+                <strong><?= $block->escapeHtml(__($block->getTitle())) ?></strong>
+            </div>
+        <?php endif ?>
+        <div class="block-content">
+            <?= /* @noEscape */ '<!-- ' . $image . '-->' ?>
+            <div class="products-<?= /* @noEscape */ $mode ?> <?= /* @noEscape */ $mode ?>">
+                <ol class="product-items <?= /* @noEscape */ $type ?>">
+                    <?php $iterator = 1; ?>
+                    <?php foreach ($items as $_item) : ?>
+                        <?= /* @noEscape */ ($iterator++ == 1) ? '<li class="product-item">' : '</li><li class="product-item">' ?>
+                        <div class="product-item-info">
+                            <a href="<?= $block->escapeUrl($block->getProductUrl($_item)) ?>" class="product-item-photo">
+                                <?= $block->getImage($_item, $image)->toHtml() ?>
+                            </a>
+                            <div class="product-item-details">
+                                <strong class="product-item-name">
+                                    <a title="<?= $block->escapeHtml($_item->getName()) ?>"
+                                       href="<?= $block->escapeUrl($block->getProductUrl($_item)) ?>"
+                                       class="product-item-link">
+                                        <?= $block->escapeHtml($_item->getName()) ?>
+                                    </a>
+                                </strong>
+                                <?php if ($templateType) : ?>
+                                    <?= $block->getReviewsSummaryHtml($_item, $templateType) ?>
+                                <?php endif; ?>
+
+                                <?= $block->getProductPriceHtml($_item, $type) ?>
+
+                                <?= $block->getProductDetailsHtml($_item) ?>
+
+                                <?php if ($showWishlist || $showCompare || $showCart) : ?>
+                                    <div class="product-item-inner">
+                                        <div class="product-item-actions">
+                                            <?php if ($showCart) : ?>
+                                                <div class="actions-primary">
+                                                    <?php if ($_item->isSaleable()) : ?>
+                                                        <?php $postParams = $block->getAddToCartPostParams($_item); ?>
+                                                        <form data-role="tocart-form" data-product-sku="<?= $block->escapeHtml($_item->getSku()) ?>" action="<?= $block->escapeUrl($postParams['action']) ?>" method="post">
+                                                            <input type="hidden" name="product" value="<?= $block->escapeHtmlAttr($postParams['data']['product']) ?>">
+                                                            <input type="hidden" name="<?= /* @noEscape */ Action::PARAM_NAME_URL_ENCODED ?>" value="<?= /* @noEscape */ $postParams['data'][Action::PARAM_NAME_URL_ENCODED] ?>">
+                                                            <?= $block->getBlockHtml('formkey') ?>
+                                                            <button type="submit"
+                                                                    title="<?= $block->escapeHtml(__('Add to Cart')) ?>"
+                                                                    class="action tocart primary">
+                                                                <span><?= $block->escapeHtml(__('Add to Cart')) ?></span>
+                                                            </button>
+                                                        </form>
+                                                    <?php else : ?>
+                                                        <?php if ($_item->getIsSalable()) : ?>
+                                                            <div class="stock available"><span><?= $block->escapeHtml(__('In stock')) ?></span></div>
+                                                        <?php else : ?>
+                                                            <div class="stock unavailable"><span><?= $block->escapeHtml(__('Out of stock')) ?></span></div>
+                                                        <?php endif; ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ($showWishlist || $showCompare) : ?>
+                                                <div class="actions-secondary" data-role="add-to-links">
+                                                    <?php if ($this->helper(\Magento\Wishlist\Helper\Data::class)->isAllow() && $showWishlist) : ?>
+                                                        <a href="#"
+                                                           data-post='<?= /* @noEscape */ $block->getAddToWishlistParams($_item) ?>' class="action towishlist" data-action="add-to-wishlist" title="<?= $block->escapeHtmlAttr(__('Add to Wish List')) ?>">
+                                                            <span><?= $block->escapeHtml(__('Add to Wish List')) ?></span>
+                                                        </a>
+                                                    <?php endif; ?>
+                                                    <?php if ($block->getAddToCompareUrl() && $showCompare) : ?>
+                                                        <?php $compareHelper = $this->helper(\Magento\Catalog\Helper\Product\Compare::class);?>
+                                                        <a href="#" class="action tocompare" data-post='<?= /* @noEscape */ $compareHelper->getPostDataParams($_item) ?>' title="<?= $block->escapeHtmlAttr(__('Add to Compare')) ?>">
+                                                            <span><?= $block->escapeHtml(__('Add to Compare')) ?></span>
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                           
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                         <?php if($isEnable == "1"){ ?>
+ <input type="button" name="Get Quote" id="mbtn1" class="action primary btn" value="<?php if($buttonText){ echo $buttonText; }else{ echo "Get Quote"; } ?>">
+ <input type="hidden" name="name1" value="<?= $_item->getName() ?>" id="namef">
+ <input type="hidden" name="id1" value="<?= $_item->getId() ?>" id="id1">
+<?php }
+$name1 = $_item->getName();
+$id1 = $_item->getId();
+ ?>
+
+                        <?= ($iterator == count($items) + 1) ? '</li>' : '' ?>
+                        
+                    <?php endforeach ?>
+hp <div id="popup-modal">
+<div class="row">
+    <div class="col-md-8">
+        <form name="addData" method="post" id="addData" class="form"
+              data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>"
+              data-mage-init='{"validation":{}}'>
+                <fieldset class="fieldset row quoteform">
+                    <div class="fields col-md-6">
+                        <div class="field name required">
+                            <label class="label" for="title"><span><?= $block->
+                                escapeHtmlAttr(__('Name')) ?></span></label>
+                            <div class="control">
+                                <input name="name" id="name" title="Name" value="" class="input-text" type="text"
+                                       data-validate="{required:true, 'validate-alphanum-with-spaces':true}">
+                            </div>
+                        </div>
+                        <div class="field email required">
+                            <label class="label" for="title"><span><?= $block->
+                                escapeHtmlAttr(__('Email')) ?></span></label>
+                            <div class="control">
+                                <input name="email" id="email" title="Email" value="" class="input-text" type="text"
+                                       data-validate="{required:true, 'validate-email':true}">
+                            </div>
+                        </div>
+                        <div class="field phoneno required">
+                            <label class="label" for="title"><span><?= $block->escapeHtmlAttr(__('Phone NO')) ?></span></label>
+                            <div class="control">
+                                <input name="phoneno" id="phoneno" title="Phoneno" value="" class="input-text"
+                                       type="text" data-validate="{required:true}">
+                            </div>
+                        </div>
+                        <div class="field comments required">
+                            <label class="label" for="title"><span><?= $block->escapeHtmlAttr(__('Comments')) ?></span></label>
+                            <div class="control">
+                                <textarea rows="4" cols="50" name="comments" id="comments" placeholder="Enter Your Comment Here!.." data-validate="{required:true}"></textarea>
+                            </div>
+                        </div>
+                         <input name="product_id" type="hidden" id="product_id" value="">
+                        <input name="product_name" type="hidden" id="product_name" value="">
+                    </div>
+                </fieldset>
+            <div class="actions-toolbar">
+                <div class="primary">
+                    
+                        <input type="submit" class="action submit primary" value="Submit" id="btnsubmit">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+                </ol>
+            </div>
+            <?= $block->getPagerHtml() ?>
+        </div>
+    </div>
+<?php endif;?>
+
+<script>
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal'
+        ],
+        function(
+            $,
+            modal
+        ) {
+            var options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                title: 'Request Quote',
+                buttons: [{
+                    text: $.mage.__('Close'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    }
+                }]
+            };
+
+            var popup = modal(options, $('#popup-modal'));
+
+           // $('#popup-modal').modal('openModal');
+            $('input#mbtn1').click(function() {
+              // alert($(this).next().val()+$(this).next().next().val());
+               $("#product_id").val($(this).next().next().val());
+               $("#product_name").val($(this).next().val());
+                 $('#popup-modal').modal('openModal');
+            });
+
+   
+    
+       // jQuery(".result").hide();
+         $('body').on('click', '#btnsubmit', function () {
+            
+          // alert("sdsadashvfjah"); 
+            var name = $("#name").val();
+            var email = $("#email").val();
+            var phoneno = $("#phoneno").val();
+            var comments = $("#comments").val();
+            var product_id = $("#product_id").val();
+            var product_name = $("#product_name").val();
+
+           /* var url = "<?php //echo $blockObj->getFormAction() ?>";
+            $.ajax({
+            url: url,
+            type: "POST",
+            data: {name:name},
+            showLoader: false,
+            cache: false,
+            success: function(response){
+                console.log(response.output);
+                alert("submitted");
+            }
+        });*/
+
+            $.ajax({
+                    type:'POST',
+                    url:'<?php echo $this->getUrl().'requestquote/index/index' ?>',
+                    data: { name:name,email:email,phoneno:phoneno,comments:comments,product_id:product_id,product_name:product_name },
+                        success:function(response){
+                            // alert("Quote Submitted");
+                        }
+                    }); 
+
+
+
+        });
+    
+        }
+    );
+</script>
+
+<style type="text/css">
+    .quoteform
+    {
+        margin: 0 !important;
+    }
+    /*input#mbtn1 {
+        color: white;
+        padding: 15px 41px;
+        font-weight: 600;
+        font-size: 1.8rem;
+        margin-top: 20px;
+    }*/
+</style>

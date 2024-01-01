@@ -1,0 +1,183 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/** @var $block \Magento\Catalog\Block\Product\View\Addto\Compare */
+?>
+
+<?php $viewModel = $block->getData('addToCompareViewModel'); ?>
+<?php if ($viewModel->isAvailableForCompare($block->getProduct())) :?>
+<a href="#" data-post='<?= /* @noEscape */ $block->getPostDataParams() ?>'
+        data-role="add-to-links"
+        class="action tocompare"><span><?= $block->escapeHtml(__('Add to Compare')) ?></span></a>
+<?php endif; ?>
+<!-- -->
+
+<?php 
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+$product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');//get current product
+$blockObj= $block->getLayout()->createBlock('Conceptive\Requestquote\Block\Requestquote');
+$isEnable = $blockObj->getConfigValue('requestquote/view/enabled');
+$buttonText = $blockObj->getConfigValue('requestquote/view/button_text');
+//echo $blockObj->getConfigValue('requestquote/view/template');
+
+
+ 
+?>
+<?php if($isEnable == "1"){ ?>
+ <input type="button" name="Get Quote" id="mbtn1" class="action primary" value="<?php if($buttonText){ echo $buttonText; }else{ echo "Get Quote"; } ?>">
+<div id="popup-modal">
+
+<!--<form method="post">
+    <input name="name" type="text" id="name">
+    <input name="email" type="text" id="email">
+    <input name="phoneno" type="text" id="phoneno">
+    <input name="comments" type="text" id="comments">
+    <input name="product_id" type="hidden" id="product_id" value="<?php echo $product->getId(); ?>">
+    <input name="product_name" type="hidden" id="product_name" value="<?php echo $product->getName(); ?>">
+    <input type="submit" value="Send booking informations" id="btnsubmit">
+</form>-->
+<div class="row">
+    <div class="col-md-8">
+        <form name="addData" method="post" id="addData" class="form"
+              data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>"
+              data-mage-init='{"validation":{}}'>
+                <fieldset class="fieldset row quoteform">
+                    <div class="fields col-md-6">
+                        <div class="field name required">
+                            <label class="label" for="title"><span><?= $block->
+                                escapeHtmlAttr(__('Name')) ?></span></label>
+                            <div class="control">
+                                <input name="name" id="name" title="Name" value="" class="input-text" type="text"
+                                       data-validate="{required:true, 'validate-alphanum-with-spaces':true}">
+                            </div>
+                        </div>
+                        <div class="field email required">
+                            <label class="label" for="title"><span><?= $block->
+                                escapeHtmlAttr(__('Email')) ?></span></label>
+                            <div class="control">
+                                <input name="email" id="email" title="Email" value="" class="input-text" type="text"
+                                       data-validate="{required:true, 'validate-email':true}">
+                            </div>
+                        </div>
+                        <div class="field phoneno required">
+                            <label class="label" for="title"><span><?= $block->escapeHtmlAttr(__('Phone NO')) ?></span></label>
+                            <div class="control">
+                                <input name="phoneno" id="phoneno" title="Phoneno" value="" class="input-text"
+                                       type="text" data-validate="{required:true}">
+                            </div>
+                        </div>
+                        <div class="field comments required">
+                            <label class="label" for="title"><span><?= $block->escapeHtmlAttr(__('Comments')) ?></span></label>
+                            <div class="control">
+                                <textarea rows="4" cols="50" name="comments" id="comments" placeholder="Enter Your Comment Here!.." data-validate="{required:true}"></textarea>
+                            </div>
+                        </div>
+                         <input name="product_id" type="hidden" id="product_id" value="<?php echo $product->getId(); ?>">
+                        <input name="product_name" type="hidden" id="product_name" value="<?php echo $product->getName(); ?>">
+                    </div>
+                </fieldset>
+            <div class="actions-toolbar">
+                <div class="primary">
+                    
+                        <input type="submit" class="action submit primary" value="Submit" id="btnsubmit">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+
+<?php } ?>
+<script>
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal'
+        ],
+        function(
+            $,
+            modal
+        ) {
+            var options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                title: 'Request Quote',
+                buttons: [{
+                    text: $.mage.__('Close'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    }
+                }]
+            };
+
+            var popup = modal(options, $('#popup-modal'));
+
+           // $('#popup-modal').modal('openModal');
+            $('#mbtn1').click(function() {
+               // alert("sdsd");
+                  $('#popup-modal').modal('openModal');
+            });
+
+   
+    
+       // jQuery(".result").hide();
+         $('body').on('click', '#btnsubmit', function () {
+            
+          // alert("sdsadashvfjah"); 
+            var name = $("#name").val();
+            var email = $("#email").val();
+            var phoneno = $("#phoneno").val();
+            var comments = $("#comments").val();
+            var product_id = $("#product_id").val();
+            var product_name = $("#product_name").val();
+
+           /* var url = "<?php //echo $blockObj->getFormAction() ?>";
+            $.ajax({
+            url: url,
+            type: "POST",
+            data: {name:name},
+            showLoader: false,
+            cache: false,
+            success: function(response){
+                console.log(response.output);
+                alert("submitted");
+            }
+        });*/
+
+            $.ajax({
+                    type:'POST',
+                    url:'<?php echo $this->getUrl().'requestquote/index/index' ?>',
+                    data: { name:name,email:email,phoneno:phoneno,comments:comments,product_id:product_id,product_name:product_name },
+                        success:function(response){
+                            // alert("Quote Submitted");
+                           
+            
+                        }
+                    }); 
+
+
+
+        });
+    
+        }
+    );
+</script>
+
+<style type="text/css">
+    .quoteform
+    {
+        margin: 0 !important;
+    }
+    input#mbtn1 {
+        color: white;
+        padding: 15px 41px;
+        font-weight: 600;
+        font-size: 1.8rem;
+        margin-top: 20px;
+    }
+</style>

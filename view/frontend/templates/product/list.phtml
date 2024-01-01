@@ -1,0 +1,334 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+use Magento\Framework\App\Action\Action;
+
+?>
+<?php
+/**
+ * Product list template
+ *
+ * @var $block \Magento\Catalog\Block\Product\ListProduct
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ */
+?>
+<?php
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+//$product = $objectManager->get('Magento\Framework\Registry')->registry('current_product');//get current product
+$blockObj= $block->getLayout()->createBlock('Conceptive\Requestquote\Block\Requestquote');
+$isEnable = $blockObj->getConfigValue('requestquote/view/enabled');
+$buttonText = $blockObj->getConfigValue('requestquote/view/button_text');
+$escaper = $objectManager->create('Magento\Framework\Escaper');
+$_productCollection = $block->getLoadedProductCollection();
+/** @var \Magento\Catalog\Helper\Output $_helper */
+$_helper = $block->getData('outputHelper');
+?>
+<?php if (!$_productCollection->count()): ?>
+    <div class="message info empty">
+        <div><?= $escaper->escapeHtml(__('We can\'t find products matching the selection.')) ?></div>
+    </div>
+<?php else: ?>
+    <?= $block->getToolbarHtml() ?>
+    <?= $block->getAdditionalHtml() ?>
+    <?php
+    if ($block->getMode() === 'grid') {
+        $viewMode = 'grid';
+        $imageDisplayArea = 'category_page_grid';
+        $showDescription = false;
+        $templateType = \Magento\Catalog\Block\Product\ReviewRendererInterface::SHORT_VIEW;
+    } else {
+        $viewMode = 'list';
+        $imageDisplayArea = 'category_page_list';
+        $showDescription = true;
+        $templateType = \Magento\Catalog\Block\Product\ReviewRendererInterface::FULL_VIEW;
+    }
+    /**
+     * Position for actions regarding image size changing in vde if needed
+     */
+    $pos = $block->getPositioned();
+    ?>
+    <div class="products wrapper <?= /* @noEscape */ $viewMode ?> products-<?= /* @noEscape */ $viewMode ?>">
+        <ol class="products list items product-items">
+            <?php /** @var $_product \Magento\Catalog\Model\Product */ ?>
+            <?php foreach ($_productCollection as $_product): ?>
+            <li class="item product product-item">
+                <div class="product-item-info"
+                     id="product-item-info_<?= /* @noEscape */ $_product->getId() ?>"
+                     data-container="product-<?= /* @noEscape */ $viewMode ?>">
+                    <?php
+                    $productImage = $block->getImage($_product, $imageDisplayArea);
+                    if ($pos != null) {
+                        $position = 'left:' . $productImage->getWidth() . 'px;'
+                            . 'top:' . $productImage->getHeight() . 'px;';
+                    }
+                    ?>
+                    <?php // Product Image ?>
+                    <a href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>"
+                       class="product photo product-item-photo"
+                       tabindex="-1">
+                        <?= $productImage->toHtml() ?>
+                    </a>
+                    <?php 
+                        if($_helper != null){
+                    ?>
+                    <div class="product details product-item-details">
+                        <?php $_productNameStripped = $block->stripTags($_product->getName(), null, true); ?>
+                        <strong class="product name product-item-name">
+                            <a class="product-item-link"
+                               href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>">
+                                <?=/* @noEscape */ $_helper->productAttribute($_product, $_product->getName(), 'name')?>
+                            </a>
+                        </strong>
+                        <?= $block->getReviewsSummaryHtml($_product, $templateType) ?>
+                        <?= /* @noEscape */ $block->getProductPrice($_product) ?>
+
+                        <?= $block->getProductDetailsHtml($_product) ?>
+
+                        <div class="product-item-inner">
+                            <div class="product actions product-item-actions">
+                                <div class="actions-primary">
+                                    <?php if ($_product->isSaleable()):?>
+                                        <?php $postParams = $block->getAddToCartPostParams($_product); ?>
+                                        <form data-role="tocart-form"
+                                              data-product-sku="<?= $escaper->escapeHtml($_product->getSku()) ?>"
+                                              action="<?= $escaper->escapeUrl($postParams['action']) ?>"
+                                              method="post">
+                                            <input type="hidden"
+                                                   name="product"
+                                                   value="<?= /* @noEscape */ $postParams['data']['product'] ?>">
+                                            <input type="hidden"
+                                                   name="<?= /* @noEscape */ Action::PARAM_NAME_URL_ENCODED ?>"
+                                                   value="<?=
+                                                   /* @noEscape */ $postParams['data'][Action::PARAM_NAME_URL_ENCODED]
+                                                    ?>">
+                                            <?= $block->getBlockHtml('formkey') ?>
+                                            <button type="submit"
+                                                    title="<?= $escaper->escapeHtmlAttr(__('Add to Cart')) ?>"
+                                                    class="action tocart primary"
+                                                    disabled>
+                                                <span><?= $escaper->escapeHtml(__('Add to Cart')) ?></span>
+                                            </button>
+                                        </form>
+                                    <?php else:?>
+                                        <?php if ($_product->isAvailable()):?>
+                                            <div class="stock available">
+                                                <span><?= $escaper->escapeHtml(__('In stock')) ?></span></div>
+                                        <?php else:?>
+                                            <div class="stock unavailable">
+                                                <span><?= $escaper->escapeHtml(__('Out of stock')) ?></span></div>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if($pos !== null){ ?>
+                                <?= strpos($pos, $viewMode . '-primary') ?
+                                    /* @noEscape */ $secureRenderer->renderStyleAsTag(
+                                        $position,
+                                        'product-item-info_' . $_product->getId() . ' div.actions-primary'
+                                    ) : '' ?>
+                                <?php } ?>
+                                <div data-role="add-to-links" class="actions-secondary">
+                                    <?php if ($addToBlock = $block->getChildBlock('addto')): ?>
+                                        <?= $addToBlock->setProduct($_product)->getChildHtml() ?>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if($pos !== null){ ?>
+                                <?= strpos($pos, $viewMode . '-secondary') ?
+                                    /* @noEscape */ $secureRenderer->renderStyleAsTag(
+                                        $position,
+                                        'product-item-info_' . $_product->getId() . ' div.actions-secondary'
+                                    ) : '' ?>
+                                <?php } ?>
+                            </div>
+                            <?php if ($showDescription): ?>
+                                <div class="product description product-item-description">
+                                    <?= /* @noEscape */ $_helper->productAttribute(
+                                        $_product,
+                                        $_product->getShortDescription(),
+                                        'short_description'
+                                    ) ?>
+                                    <a href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>"
+                                       title="<?= /* @noEscape */ $_productNameStripped ?>"
+                                       class="action more"><?= $escaper->escapeHtml(__('Learn More')) ?></a>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php }  ?>
+                <?php if($pos !== null){ ?>
+                <?= strpos($pos, $viewMode . '-actions') ?
+                /* @noEscape */ $secureRenderer->renderStyleAsTag(
+                    $position,
+                    'product-item-info_' . $_product->getId() . ' div.product-item-actions'
+                ) : '' ?>
+                <?php } ?>
+                 <?php if($isEnable == "1"){ ?>
+                    <input type="button" name="Get Quote" id="mbtn1" class="action primary btn" value="<?php if($buttonText){ echo $buttonText; }else{ echo "Get Quote"; } ?>">
+                    <input type="hidden" name="name1" value="<?= $_product->getName() ?>" id="namef">
+                    <input type="hidden" name="id1" value="<?= $_product->getId() ?>" id="id1">
+                    <?php }
+                    $name1 = $_product->getName();
+                    $id1 = $_product->getId();
+                ?>
+
+            </li>
+            <?php endforeach; ?>
+             <div id="popup-modal">
+<div class="row">
+    <div class="col-md-8">
+        <form name="addData" method="post" id="addData" class="form"
+              data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>"
+              data-mage-init='{"validation":{}}'>
+                <fieldset class="fieldset row quoteform">
+                    <div class="fields col-md-6">
+                        <div class="field name required">
+                            <label class="label" for="title"><span><?= $block->
+                                escapeHtmlAttr(__('Name')) ?></span></label>
+                            <div class="control">
+                                <input name="name" id="name" title="Name" value="" class="input-text" type="text"
+                                       data-validate="{required:true, 'validate-alphanum-with-spaces':true}">
+                            </div>
+                        </div>
+                        <div class="field email required">
+                            <label class="label" for="title"><span><?= $block->
+                                escapeHtmlAttr(__('Email')) ?></span></label>
+                            <div class="control">
+                                <input name="email" id="email" title="Email" value="" class="input-text" type="text"
+                                       data-validate="{required:true, 'validate-email':true}">
+                            </div>
+                        </div>
+                        <div class="field phoneno required">
+                            <label class="label" for="title"><span><?= $block->escapeHtmlAttr(__('Phone NO')) ?></span></label>
+                            <div class="control">
+                                <input name="phoneno" id="phoneno" title="Phoneno" value="" class="input-text"
+                                       type="text" data-validate="{required:true}">
+                            </div>
+                        </div>
+                        <div class="field comments required">
+                            <label class="label" for="title"><span><?= $block->escapeHtmlAttr(__('Comments')) ?></span></label>
+                            <div class="control">
+                                <textarea rows="4" cols="50" name="comments" id="comments" placeholder="Enter Your Comment Here!.." data-validate="{required:true}"></textarea>
+                            </div>
+                        </div>
+                         <input name="product_id" type="hidden" id="product_id" value="">
+                        <input name="product_name" type="hidden" id="product_name" value="">
+                    </div>
+                </fieldset>
+            <div class="actions-toolbar">
+                <div class="primary">
+                    
+                        <input type="submit" class="action submit primary" value="Submit" id="btnsubmit">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+        </ol>
+    </div>
+    <?= $block->getToolbarHtml() ?>
+    <?php if (!$block->isRedirectToCartEnabled()): ?>
+        <script type="text/x-magento-init">
+        {
+            "[data-role=tocart-form], .form.map.checkout": {
+                "catalogAddToCart": {
+                    "product_sku": "<?= $escaper->escapeJs($_product->getSku()) ?>"
+                }
+            }
+        }
+        </script>
+    <?php endif; ?>
+<?php endif; ?>
+<script>
+    require(
+        [
+            'jquery',
+            'Magento_Ui/js/modal/modal'
+        ],
+        function(
+            $,
+            modal
+        ) {
+            var options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                title: 'Request Quote',
+                buttons: [{
+                    text: $.mage.__('Close'),
+                    class: '',
+                    click: function () {
+                        this.closeModal();
+                    }
+                }]
+            };
+
+            var popup = modal(options, $('#popup-modal'));
+
+           // $('#popup-modal').modal('openModal');
+            $('input#mbtn1').click(function() {
+              // alert($(this).next().val()+$(this).next().next().val());
+               $("#product_id").val($(this).next().next().val());
+               $("#product_name").val($(this).next().val());
+                 $('#popup-modal').modal('openModal');
+            });
+
+   
+    
+       // jQuery(".result").hide();
+         $('body').on('click', '#btnsubmit', function () {
+            
+          // alert("sdsadashvfjah"); 
+            var name = $("#name").val();
+            var email = $("#email").val();
+            var phoneno = $("#phoneno").val();
+            var comments = $("#comments").val();
+            var product_id = $("#product_id").val();
+            var product_name = $("#product_name").val();
+
+           /* var url = "<?php //echo $blockObj->getFormAction() ?>";
+            $.ajax({
+            url: url,
+            type: "POST",
+            data: {name:name},
+            showLoader: false,
+            cache: false,
+            success: function(response){
+                console.log(response.output);
+                alert("submitted");
+            }
+        });*/
+
+            $.ajax({
+                    type:'POST',
+                    url:'<?php echo $this->getUrl().'requestquote/index/index' ?>',
+                    data: { name:name,email:email,phoneno:phoneno,comments:comments,product_id:product_id,product_name:product_name },
+                        success:function(response){
+                            // alert("Quote Submitted");
+                        }
+                    }); 
+
+
+
+        });
+    
+        }
+    );
+</script>
+
+<style type="text/css">
+    .quoteform
+    {
+        margin: 0 !important;
+    }
+    /*input#mbtn1 {
+        color: white;
+        padding: 15px 41px;
+        font-weight: 600;
+        font-size: 1.8rem;
+        margin-top: 20px;
+    }*/
+</style>
