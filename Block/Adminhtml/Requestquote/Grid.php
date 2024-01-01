@@ -45,7 +45,7 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
         $this->setId('requestquoteGrid');
         $this->setDefaultSort('requestquote_id');
         $this->setDefaultDir('DESC');
-        $this->setUseAjax(true);
+        $this->setUseAjax(false);
         $this->setSaveParametersInSession(true);
     }
 
@@ -108,6 +108,6 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
      */
     public function getGridUrl()
     {
-        return $this->getUrl('*/*/grid', ['_current' => true]);
+        return $this->getUrl('*/*/index', ['_current' => true]);
     }
 }

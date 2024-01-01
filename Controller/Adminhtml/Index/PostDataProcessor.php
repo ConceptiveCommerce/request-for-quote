@@ -35,7 +35,7 @@ class PostDataProcessor
      */
     public function filter($data)
     {
-        $inputFilter = new \Zend_Filter_Input(
+        $inputFilter = new \Magento\Framework\Filter\FilterInput(
             ['published_at' => $this->dateFilter],
             [],
             $data
