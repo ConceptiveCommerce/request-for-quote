@@ -2,13 +2,13 @@
     "name": "conceptive/requestquote",
     "description": "Magento 2 Request For Quote",
     "type": "magento2-module",
-    "version": "1.0.3",
+    "version": "1.0.2",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
     ],
     "require": {
-        "php": "~7.4.0||~8.1.0"
+        "php": "~7.4.0||~8.1.0||~8.2.0"
     },
     "authors": [
         {
